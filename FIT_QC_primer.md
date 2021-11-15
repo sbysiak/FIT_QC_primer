@@ -175,6 +175,37 @@ steps to get more experiment like data
 
 <div style="page-break-after: always;"></div>
 
+### Time Calibration workflow
+
+-> Workflow to calibrate the measured time-distributions of partices by FT0/FV0 detectors. The measured time might be shifted with respect to the LHC clock. Calibration workflow produces these correction shifts (offsets) 
+ for each detector channel and stores them as ROOT objects (vectors) into CCDB  (http://ccdb-test.cern.ch:8080/browse/FV0/Calibration/ChannelTimeOffset). Later on for calibrating data, these offsets 
+ are applied to the incoming data. This procedure is checked by running the QC:
+
+-> Running the workflows for FT0/FV0:
+- `o2-ft0-digits-reader-workflow --ft0-digit-infile <path-to-digits-file> | o2-calibration-ft0-tf-processor | o2-calibration-ft0-channel-offset-calibration | o2-calibration-ccdb-populator-workflow`
+- `o2-fv0-digit-reader-workflow --fv0-digit-infile <path-to-digits-file> | o2-calibration-fv0-tf-processor | o2-calibration-fv0-channel-offset-calibration | o2-calibration-ccdb-populator-workflow`
+
+-> Running calibration QC for FT0/FV0:
+- `o2-ft0-digits-reader-workflow --ft0-digit-infile <digit-root-file> | o2-qc --config json:///$HOME/alice/QualityControl/Modules/FV0/fv0-calibration-config.json -b --rate 1`
+- `o2-fv0-digit-reader-workflow --fv0-digit-infile <digit-root-file> | o2-qc --config json:///$HOME/alice/QualityControl/Modules/FT0/ft0-calibration-config.json -b --rate 1`
+
+Related classes are in O2: 
+O2/Detectors/FIT/FV0/calibration/src/FV0ChannelTimeTimeSlotContainer.cxx (similar for FT0) 
+    - To calculate the offset values (gaus-fit is implemented)
+    - To find relavent classes for workflows: Check CMakeList.txt & search there for 'o2_add_executable'
+
+for example :
+`o2_add_executable(fv0-channel-offset-calibration
+  COMPONENT_NAME calibration
+  SOURCES workflow/FV0ChannelTimeCalibration-Workflow.cxx`
+
+- Configuration options: While running the calibration workflow you can specify following options to have better calibration (add these options after o2-calibration-fv0-channel-offset-calibration ):
+    -   --tf-per-slot=N : It will start the calibration after N timeframes are accumulated (N should be such number which can have sufficient data for calibration)
+    -   --time-calib-fitting-nbins=M : This option for specifying histogram range for fitting gaussian .i.e M bins per side of the histogram maxima. (This will help to have robust fitting)
+    -   --updateInterval : Options available but not used. Check the details here https://github.com/AliceO2Group/AliceO2/tree/dev/Detectors/Calibration#timeslotcalibrationinput-container
+    -   --max-delay : 
+                
+
 # TODO List
 
 * parameterize all paths -- it's important if we want to run not only on FLP but also on EPN (two tasks cannot have the same name, so one has to change them in the config for instance from "DigitQcTask" in FV0 and FT0 to "DigitQcTaskFV0" and "DigitQcTaskFT0"). It makes the hardcoded paths not valid.
