@@ -17,10 +17,14 @@
 * [Exemplary commands](#exemplary-commands)
     * [Simulation and digitization of data](#simulation-and-digitization-of-data)
     * [Running QC](#running-qc)
+    * [Accessing data from EOS](#accessing-data-from-eos)
+    * [Converting compressed timeframes CTF](#converting-compressed-timeframes-ctf)
+* [Time Calibration workflow](#time-calibration-workflow)
+    * [Running the workflows for FT0/FV0](#running-the-workflows-for-ft0-and-fv0)
+    * [Running calibration QC for FT0/FV0](#running-calibration-qc-for-ft0-and-fv0)
+    * [Related classes are in O2](#related-classes-are-in-o2)
+    * [Configuration options](#configuration-options)
 * [TODO List](#todo-list)
-
-
-last edit:
 
 
 
@@ -173,18 +177,34 @@ steps to get more experiment like data
 `o2-raw-tf-reader-workflow --raw-only-det FV0 --input-data run0504494/ | o2-fv0-flp-dpl-workflow -b`
 
 
+### Accessing data from EOS
+listing files:  
+- `xrdfs root://eosaliceo2.cern.ch ls -l /eos/aliceo2/raw/2021/OCT/505673/`
+
+copying to local:  
+- `xrdcp  -r --parallel 4  root://eosaliceo2.cern.ch/////eos/aliceo2/raw/2021/OCT/505673/raw/0640/ ./`
+
+
+### Converting compressed timeframes CTF
+
+- to digits (for FV0 trigger information may not be filled):  
+`o2-ctf-reader-workflow --onlyDet FV0 --ctf-input path/to/o2_ctf_file.root -b --ctf-dict path/to/ctf_dictionary.root | o2-fv0-digits-writer-workflow --disable-mc -b`
+
+- to reco (to be validated):  
+`o2-ctf-reader-workflow --onlyDet FV0 --ctf-input path/to/o2_ctf_file.root -b --ctf-dict path/to/ctf_dictionary.root | o2-fv0-digits-writer-workflow --disable-mc -b`
+
 <div style="page-break-after: always;"></div>
 
 # Time Calibration workflow
 
 Workflow to calibrate the measured time-distributions of particles by FT0/FV0 detectors. The measured time might be shifted with respect to the LHC clock. Calibration workflow produces these correction shifts (offsets) for each detector channel and stores them as ROOT objects (vectors) into CCDB  (http://ccdb-test.cern.ch:8080/browse/FV0/Calibration/ChannelTimeOffset). Later on for calibrating data, these offsets are applied to the incoming data. This procedure is checked by running the QC:
 
-### Running the workflows for FT0/FV0:
+### Running the workflows for FT0 and FV0:
 
 - `o2-ft0-digits-reader-workflow --ft0-digit-infile <path-to-digits-file> | o2-calibration-ft0-tf-processor | o2-calibration-ft0-channel-offset-calibration | o2-calibration-ccdb-populator-workflow`
 - `o2-fv0-digit-reader-workflow --fv0-digit-infile <path-to-digits-file> | o2-calibration-fv0-tf-processor | o2-calibration-fv0-channel-offset-calibration | o2-calibration-ccdb-populator-workflow`
 
-### Running calibration QC for FT0/FV0:
+### Running calibration QC for FT0 and FV0:
 
 - `o2-ft0-digits-reader-workflow --ft0-digit-infile <digit-root-file> | o2-qc --config json:///$HOME/alice/QualityControl/Modules/FV0/fv0-calibration-config.json -b`
 - `o2-fv0-digit-reader-workflow --fv0-digit-infile <digit-root-file> | o2-qc --config json:///$HOME/alice/QualityControl/Modules/FT0/ft0-calibration-config.json -b`
