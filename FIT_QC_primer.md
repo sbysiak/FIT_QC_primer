@@ -20,7 +20,7 @@
 * [TODO List](#todo-list)
 
 
-last edit: 
+last edit:
 
 
 
@@ -44,8 +44,8 @@ CCDB = Conditions and Calibration DB
 
 
 * production databases:
-  * **QCG:** https://qcg.cern.ch/?page=objectTree
-  * **QCDB:** http://qcdb.cern.ch:8083/  
+  * **QCG:** https://ali-qcg.cern.ch/?page=objectTree
+  * **QCDB:** http://ali-qcdb.cern.ch:8083/
   * **CCDB:** http://alice-ccdb.cern.ch/
 
 
