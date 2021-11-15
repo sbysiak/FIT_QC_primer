@@ -229,8 +229,6 @@ While running the calibration workflow you can specify following options to have
 
 # TODO List
 
-* parameterize all paths -- it's important if we want to run not only on FLP but also on EPN (two tasks cannot have the same name, so one has to change them in the config for instance from "DigitQcTask" in FV0 and FT0 to "DigitQcTaskFV0" and "DigitQcTaskFT0"). It makes the hardcoded paths not valid.
-
 * conversion of BcOrbitMaps to THnSparse or TH2I or even TH1  
   BcOrbitMaps are large: TH2F with 3564 x 256 bins. After taking first data one can think about changing them to THnSparse (but be careful about merging performance! maybe contact QC experts)  
   On the other hand, LHC filling scheme is basically 1D information, so one could consider dropping orbits completely and only use BC (to be consulted with detector experts).
