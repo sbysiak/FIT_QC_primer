@@ -98,7 +98,7 @@ QC framework defines 3 main classes described in next sections: QcTasks, PostPro
 There are two types of QC objects: MonitoringObjects (MO) and QualityObjects (QO).
 MO are ROOT objects, typically histograms or graphs. QO are basically numbers specifying quality of given MO (1=Good/2=Medium/3=Bad and 10=Null = the worst). Qos and be [aggregated](https://github.com/AliceO2Group/QualityControl/blob/master/doc/ModulesDevelopment.md#quality-aggregation).
 
-*As of today (21.10.2021), the policy for storage is following: everything is kept for 24h, after that only one version of each MO/QO per hour is preserved. Trending can be used to keep information about the time evolution with granularity greater than 1/h.*
+*As of today (15.11.2021), the policy for storage is following: everything is kept for 24h, after that only one version of each MO/QO per RUN is preserved. Trending can be used to keep information about the time evolution with granularity greater than 1/h.*
 
 ## QcTasks:
 They take as an input all data in form of digits so are able to compute everything. They create and publish MOs.
