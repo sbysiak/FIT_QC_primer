@@ -232,3 +232,7 @@ While running the calibration workflow you can specify following options to have
 * conversion of BcOrbitMaps to THnSparse or TH2I or even TH1  
   BcOrbitMaps are large: TH2F with 3564 x 256 bins. After taking first data one can think about changing them to THnSparse (but be careful about merging performance! maybe contact QC experts)  
   On the other hand, LHC filling scheme is basically 1D information, so one could consider dropping orbits completely and only use BC (to be consulted with detector experts).
+* add plots with sums of both channels in ring 5 (in each sector), e.g. A51+A52
+* add plot with time deltas between channels, filled on event-by-event basis (to estimate time resolution)
+* switch to taking BunchFilling from new source: https://alice-talk.web.cern.ch/t/access-to-lhc-filling-scheme/1073/22
+* unify settings in TriggerQcTask to be similar to the menu in ControlServer (e.g. thresholds in number of ADC channels VS in MIPs)
