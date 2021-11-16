@@ -72,6 +72,42 @@ Request to support config files for layouts is pending: https://alice.its.cern.c
 * QC repo: https://github.com/AliceO2Group/QualityControl
 * documentation for shifters: https://alice-qc-shifter.docs.cern.ch/
 * accessing GPN protected websites from outside of CERN: https://gitlab.cern.ch/bvonhall/dynamic-forwarding/-/blob/master/README.md
+* FoxyProxy could keep the proxy settings: https://addons.mozilla.org/hu/firefox/addon/foxyproxy-standard/
+* Example JSON file to access CERN CCDB:
+``` {
+  "logging": {
+    "size": 100,
+    "active": false
+  },
+  "mode": "disabled",
+  "x71e991636990457871": {
+    "type": 3,
+    "color": "#66cc66",
+    "title": "CERN",
+    "active": true,
+    "address": "127.0.0.1",
+    "port": 1080,
+    "proxyDNS": true,
+    "username": "",
+    "password": "",
+    "whitePatterns": [
+      {
+        "title": "all URLs",
+        "active": true,
+        "pattern": "*",
+        "type": 1,
+        "protocols": 1
+      }
+    ],
+    "blackPatterns": [],
+    "pacURL": "",
+    "index": 9007199254740990
+  },
+  "browserVersion": "94.0.1",
+  "foxyProxyVersion": "7.5.1",
+  "foxyProxyEdition": "standard"
+}
+```
 
 -------------------------------
 
