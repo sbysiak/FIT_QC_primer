@@ -231,6 +231,15 @@ While running the calibration workflow you can specify following options to have
 - `--max-delay`
 
 
+# How to create and use workflows
+
+## The ControlWorkflows
+
+## The ECS site
+
+## An example: FV0 laser QC
+
+
 # TODO List
 
 * conversion of BcOrbitMaps to THnSparse or TH2I or even TH1  
