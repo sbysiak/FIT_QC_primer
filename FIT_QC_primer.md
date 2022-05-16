@@ -275,10 +275,14 @@ From this point, the settings are depending on what workflow you have and what d
 * TRG: fv0_cal.par or fv0_cont.par or something else
 * Click on Create
 
-After awhile your task will be Configured (STANDBY -> DEPLOYED -> ```diff ! CONFIGURED ```). If the status turns to be <span style="color:red"> ERROR text</span> then something went wrong with the configurations.
+After awhile your task will be Configured (STANDBY -> DEPLOYED -> ```diff ! CONFIGURED ! ```). If the status turns to be <span style="color:red"> ERROR text</span> then something went wrong with the configurations.
 If it is <span style="color:#ffca33"> CONFIGURED text</span> then in the upper left corner you should see the a Start button. Click on that and wait for a couple of seconds. Your workflow will start. If you have any output
 histogram(s) which goes to the [QCG database](https://ali-qcg.cern.ch/?page=objectTree) then you can check if they appear or not. If not, then check the database settings compared to other `.json` files available on
 [Consul](https://ali-consul-ui.cern.ch/ui/alice-o2-cluster/kv/o2/components/qc/ANY/any/) .
+
+```diff ! CONFIGURED ! ```
+
+```diff ! CONFIGURED ```
 
 # TODO List
 
