@@ -24,6 +24,9 @@
     * [Running calibration QC for FT0/FV0](#running-calibration-qc-for-ft0-and-fv0)
     * [Related classes are in O2](#related-classes-are-in-o2)
     * [Configuration options](#configuration-options)
+* [How to create and use workflows](#how-to-create-and-use-workflows)
+    * [The ControlWorkflows](#the-controlworkflows)
+    * [The ECS site](#the-ecs-site)
 * [TODO List](#todo-list)
 
 
@@ -263,6 +266,56 @@ While running the calibration workflow you can specify following options to have
 - `--updateInterval` : Options available but not used. Check the details here https://github.com/AliceO2Group/AliceO2/tree/dev/Detectors/Calibration#timeslotcalibrationinput-container
 - `--max-delay`
 
+
+# How to create and use workflows
+
+In this section we describe how to create a workflow and how to use it in the [ECS](https://ali-ecs.cern.ch/?page=newEnvironment). As an example, we give the details of the
+creation of the FV0 laser QC.
+
+## The ControlWorkflows
+
+First of all, have a local clone from the [ControlWorklows](https://github.com/<your_git_user_name>/ControlWorkflows) repository. Once it is forked on the site, in bash, it can be cloned with
+`git clone https://github.com/AliceO2Group/ControlWorkflows.git` command. I also did `git remote -v` and `git remote add origin git@github.com:<your_git_user_name>/ControlWorkflows`.
+May be these are not necessary.
+
+The repository contains a quite extensive README which I recommend to read. Besides, there are the three main directories:
+* scripts: this directory contains the scripts which generate the workflows and the `.json` files for the configurations of the workflows in the `scripts/etc` subdirectory. This is where your `.json` files should go.
+* tasks: the generation script will produce `.yaml` files that corresponds to your tasks in the `.json` which go here.
+* workflows: the generation script will produce `.yaml` file that contains your tasks and goes here.
+
+All you need to do is the followings:
+
+* copy your `.json` file into the `scripts/etc`
+* write your on generation script (or just copy and modify an existing one) and run it
+* the name of the new workflow also should be added to `workflows/readout-dataflow.yaml` file. Find the group of workflows for your detector and add it there.
+* Push the changes into your repository
+    * git status   #shows which are the files that are modified or created, i.e., to be pushed
+    * git add <filename>
+    * git commit -m "Something descriptive"
+    * (for the first time) git remote add origin git@github.com:<your_git_user_name>/<your_repo> (e.g.: git remote add origin git@github.com:sandor-lokos/ControlWorkflows)
+    * git push -u origin master
+* write an e-mail to a corresponding person to add your git repository to ECS (when I did this the person was Roberto Divia (Roberto.Divia@cern.ch))
+* upload your .json file to [Consul](https://ali-consul-ui.cern.ch/ui/alice-o2-cluster/kv/o2/components/qc/ANY/any/) with the naming convention you find there.
+E.g. in my case `fv0-digits-qc-laser.json` transformed to `fv0-digits-qc-laser-alio2-cr1-flp180.json`. The postfix is related to the FLP version (I think).
+
+And you are all set and ready to use your workflow on the [ECS](https://ali-ecs.cern.ch/?page=newEnvironment). Let's see how that works.
+
+## The ECS site
+
+On the [ECS site](https://ali-ecs.cern.ch/?page=newEnvironment), in the left hand menu, the top is the **+CREATE**. There under Repository you should find your own. Select it!
+
+From this point, the settings are depending on what workflow you have and what do you want to do. I will describe my case of FV0 laser QC but note that your case could be different.
+
+* Revision: master (or whatever branch you have), Workflow: readout-dataflow, Detector selection: FV0, FLP selection: alio2-cr1-flp180 (or similar)
+* Under Advanced configuration   Key: dpl_workflow  value: fv0-digits-qc-laser and then click +
+* EPN Workflows: Expert, then # of EPNs: 1, Extra ENV variables: WORKFLOW_DETECTORS_FLP_PROCESSING=FV0 (at the moment, we have this but it hopefully will be changed)
+* TRG: fv0_cal.par or fv0_cont.par or something else
+* Click on Create
+
+After awhile your task will be Configured (STANDBY -> DEPLOYED -> CONFIGURED). If the status turns to be <span style="color:red"> ERROR text</span> then something went wrong with the configurations.
+If it is <span style="color:#ffca33"> CONFIGURED text</span> then in the upper left corner you should see the a Start button. Click on that and wait for a couple of seconds. Your workflow will start. If you have any output
+histogram(s) which goes to the [QCG database](https://ali-qcg.cern.ch/?page=objectTree) then you can check if they appear or not. If not, then check the database settings compared to other `.json` files available on
+[Consul](https://ali-consul-ui.cern.ch/ui/alice-o2-cluster/kv/o2/components/qc/ANY/any/) .
 
 # TODO List
 
