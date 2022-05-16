@@ -233,7 +233,26 @@ While running the calibration workflow you can specify following options to have
 
 # How to create and use workflows
 
+In this section we describe how to create a workflow and how to use it in the [ECS](https://ali-ecs.cern.ch/?page=newEnvironment). As an example, we give the details of the
+creation of the FV0 laser QC.
+
 ## The ControlWorkflows
+
+First of all, have a local clone from the [ControlWorklows](https://github.com/AliceO2Group/ControlWorkflows) repository. Once it is forked on the site, in bash, it can be cloned with
+`git clone https://github.com/AliceO2Group/ControlWorkflows.git` command. I also did `git remote -v` and `git remote add origin git@github.com:<your_git_user_name>/ControlWorkflows`.
+May be these are not necessary.
+
+The repository contains a quite extensive README which I recommend to read. Besides, there are the three main directories:
+* scripts: this directory contains the scripts which generate the workflows and the `.json` files for the configurations of the workflows in the `scripts/etc` subdirectory. This is where your `.json` files should go.
+* tasks: the generation script will produce `.yaml` files that corresponds to your tasks in the `.json` which go here.
+* workflows: the generation script will produce `.yaml` file that contains your tasks and goes here.
+All you need to do is the followings:
+* copy your `.json` file into the `scripts/etc`
+* write your on generation script (or just copy and modify an existing one) and run it
+* the name of the new workflow also should be added to `workflows/readout-dataflow.yaml` file. Find the group of workflows for your detector and add it there.
+* Push the changes into your repository
+* write an e-mail to a corresponding person to add your git repository to ECS (when I did this the person was Roberto Divia (Roberto.Divia@cern.ch))
+* upload your .json file to [Consul](https://ali-consul-ui.cern.ch/ui/alice-o2-cluster/kv/o2/components/qc/ANY/any/) with the naming convention you find there. E.g. in my case fv0-digits-qc-laser.json transformed to fv0-digits-qc-laser-alio2-cr1-flp180.json. The postfix is related to the FLP version (I think).
 
 ## The ECS site
 
