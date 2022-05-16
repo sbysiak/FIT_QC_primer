@@ -24,6 +24,10 @@
     * [Running calibration QC for FT0/FV0](#running-calibration-qc-for-ft0-and-fv0)
     * [Related classes are in O2](#related-classes-are-in-o2)
     * [Configuration options](#configuration-options)
+* [How to create and use workflows](#how-to-create-and-use-workflows)
+    * The ControlWorkflows (#the-controlworkflows)
+    * The ECS site (#the-ecs-site)
+    * An example: FV0 laser QC (#an-example-fv0:-laser-qc)
 * [TODO List](#todo-list)
 
 
