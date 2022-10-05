@@ -159,17 +159,49 @@ Useful part of the checker is `beautify()` function (called only if the input is
 # FIT QC tasks
 
 List of tasks implemented for FIT (FV0 and FT0 for now):
-- DigitQcTask -- main QcTasks, dumps to 1- and 2D histograms most of the information available in digits. In particular it generates separately BC-orbit maps for: all events, for each trigger and for each FEE piece (PM and TCM).
+- DigitQcTask -- main QcTasks, dumps to 1- and 2D histograms most of the information available in digits. In particular it generates separately BC distributions for: all events, for each trigger and for each FEE piece (PM and TCM).
+It also contains functionality from old `TriggerQcTask` -- taking information from PMs and repeating the logic implemented on TCM to validate the triggers
 
-- TriggerQcTask -- takes information from PMs and repeats the logic implemented on TCM to validate the triggers
+- DigitQcTaskLaser and TH1ReductorLaser -- similar to `DigitQcTask` with limited functionality, to be used in laser runs. Reductor is responsible for fitting amplitude distribution for each channel, including reference channel, which contains two peaks.
 
-- BasicPPTask -- postprocessing task which computes trigger rates (+ TPofiles for time and amplitude VS channel)
+- PostProcTask -- postprocessing task which computes trigger rates and combines registered BC distribution with the LHC filling scheme (aka BC pattern) and finds the events which are out-of-the-bunch.
 
-- OutOfBunchCollTask and OutOfBunchCollCheck -- postprocessing that combines BcOrbitMap with the LHC filling scheme (aka BC pattern) and finds the events which are out-of-the-bunch. Checker compares ratio of out-of-the-bunch events to all events with warning/error thresholds.
+- OutOfBunchCollCheck - compares ratio of out-of-the-bunch events to all events with warning/error thresholds.
 
 - CFDEffCheck -- for each channel computes efficiency of getting charge information when time information was available (charge is not available - and set to zero - in case of time miscalibration).
 
+- GenericCheck -- checker which implements series of simple checks, like histogram (1D/2D) mean within predefined range, stddev below certain threshold, last point of graph within range, overflow bin to integral ratio below threshold. It can be also easily extended for any check which requires comparison of value extracted from single MO with some threshold. Each single check is activated by specifying its warning and error thresholds in the config
+
 - CalibrationTask and ChannelTimeCalibrationCheck -- check performance of time offset calibration procedure
+
+## Configuration
+
+### Description of selected parameters:
+
+- `DigitQcTask`:
+  - "ChannelIDs" - selects channels for which separate ampl/time histogram will be generated. Meant to limit number of produces objects.
+  - "ChannelIDsAmpVsTime" - same but for AmpVsTime 2D histograms per channel. This histogram is more important because this correlation cannot be retrieved from 2D: TimeVsChannel or AmpVsChannel
+  - "binning_\<MoName\>" - parameter to modify binning of histogram
+  - triggers settings for trigger validation in software, description for FT0:
+    - "trgThresholdTimeLow/High" - time window for vertex trigger
+    - "trgModeSide" - mode for central and semi-central triggers, may operate on either side, their sum or AND condition for both sides, options: "A", "C", "A+C", "A&C"
+    - "trgModeThresholdVar" - mode for central and semi-central triggers, which can operate either on amplitudes or number of fired channels, options: "Ampl", "Nchannels"
+    - "trgThreshold(S)Cen[A/C/Sum]" - trigger threshold for (semi-)central trigger, expressed in ADC channels or number of channels depending on "trgModeThresholdVar"
+- `CFDEffCheck`:
+  - "deadChannelMap" - list of channels which are excluded from the check (they will not raise any alarm)
+- `PostProcTask`:
+  - "timestampSourceLhcIf", chooses which instance of `GRPLHCIFData` (containing BC pattern) should be used by selecting source of timestamp used to query the CCDB, see also: [this topic](https://alice-talk.web.cern.ch/t/access-to-timestamp-of-data/1309/2) for some discussion. Options:
+    - "last" - picks the last available object from the CCDB
+    - "trigger" - uses object which is valid at the timestamp provided by the `Trigger` class object passed to `PostProcTask::update`
+    - "metadata" - uses object valid at the timestamp extracted from the metadata of MO "BCvsTriggers" (key="TFcreationTime"). This field contains timestamp propagated from `ProcessingContext::services().get<o2::framework::TimingInfo>().creation` in `DigitQcTask::monitorData()`. Once this is filled properly for , this options could be used also in online running.
+    - "cycleDurationMoName" - name of MO which should be used in trigger rates calculations. See: [Note on Trigger Rates](#note-on-trigger-rates)
+    - "init/updateTrigger" - for now (2022.10.05) it's important to trigger on the last object added to the object manager in `DigitQcTask`, otherwise it may result in picking object from different cycles due to tiny differences in their timestamps. Currently, it's [FV0/FT0/FDD]/MO/DigitQcTask/TriggersCorrelation. The same is valid for any PP task, in particular for `TrendingTask`. [This jira ticker](https://alice.its.cern.ch/jira/browse/QC-826) should fix it.
+- `GenericCheck`: each simple check has two parameters which are warning and error thresholds. If parameter contains "Min" ("Max") then the value has the lower (upper) restriction. For instance "thresholdWarningMaxStddevX" and "thresholdErrorMaxStddevX" put on limit on the maximum allowed standard deviation on x-axis (no limit from the bottom). Window of allowed values is obtained as two separate checks, e.g.
+      "thresholdWarningMinMeanX":"-40",
+      "thresholdErrorMinMeanX":"-50",
+      "thresholdWarningMaxMeanX":"40",
+      "thresholdErrorMaxMeanX":"50"
+corresponds to condition: Warning if abs(mean(x))>40 and  Error if abs(mean(x))>50
 
 
 ### Note on Trigger Rates
@@ -318,11 +350,6 @@ histogram(s) which goes to the [QCG database](https://ali-qcg.cern.ch/?page=obje
 [Consul](https://ali-consul-ui.cern.ch/ui/alice-o2-cluster/kv/o2/components/qc/ANY/any/) .
 
 # TODO List
-
-* conversion of BcOrbitMaps to THnSparse or TH2I or even TH1  
-  BcOrbitMaps are large: TH2F with 3564 x 256 bins. After taking first data one can think about changing them to THnSparse (but be careful about merging performance! maybe contact QC experts)  
-  On the other hand, LHC filling scheme is basically 1D information, so one could consider dropping orbits completely and only use BC (to be consulted with detector experts).
-* add plots with sums of both channels in ring 5 (in each sector), e.g. A51+A52
+* improve triggers validation in software by implementing exactly the same logic as on TCM including information from bits (docs needed)
 * add plot with time deltas between channels, filled on event-by-event basis (to estimate time resolution)
-* switch to taking BunchFilling from new source: https://alice-talk.web.cern.ch/t/access-to-lhc-filling-scheme/1073/22
 * unify settings in TriggerQcTask to be similar to the menu in ControlServer (e.g. thresholds in number of ADC channels VS in MIPs)
