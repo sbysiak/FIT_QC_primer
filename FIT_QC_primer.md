@@ -13,6 +13,8 @@
    * [PostProcessingTasks](#postprocessingtasks)
    * [Checkers](#checkers)
 * [FIT QC tasks](#fit-qc-tasks)
+  * [Configuration](#configuration)
+    * [Description of selected parameters](#description-of-selected-parameters)
     * [Note on Trigger Rates](#note-on-trigger-rates)
 * [Exemplary commands](#exemplary-commands)
     * [Simulation and digitization of data](#simulation-and-digitization-of-data)
